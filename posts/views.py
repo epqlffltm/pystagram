@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from posts.models import Post
 
 def feeds(request):
   #요청(request)으로부터 사용자 정보를 가저온다.
@@ -14,4 +15,6 @@ def feeds(request):
   if not request.user.is_authenticated:
     #/users/login으로 url로 이동시킴
     return redirect("/users/login/")
-  return render(request, "posts/feeds.html")
+  posts = Post.objects.all()
+  context = {"posts":posts}
+  return render(request, "posts/feeds.html",context)
