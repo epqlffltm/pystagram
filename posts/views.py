@@ -49,7 +49,7 @@ def comment_delete(request, comment_id):
         post_id = comment.post.id  # ✅ 삭제 전에 저장
         comment.delete()
         #return HttpResponseRedirect(f"/posts/feeds/#post-{post_id}")
-        url = reverse("posts:feels") + f"#post-{comment.post.id}"
+        url = reverse("posts:feeds") + f"#post-{comment.post.id}"
         return HttpResponseRedirect(url)
     else:
         return HttpResponseForbidden("이 댓글을 삭제할 권한이 없습니다.")
