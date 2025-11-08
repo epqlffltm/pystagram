@@ -6,7 +6,7 @@ from users.models import User
 def login_view(request):
   #이미 로그인했다면
   if request.user.is_authenticated:
-    return redirect("/posts/feeds/")
+    return redirect("posts:feeds")
   
   if request.method == "POST":
     #LoginForm인트턴스 생성, 입력 데이터는request.post를 사용
@@ -23,7 +23,7 @@ def login_view(request):
       
       if user:
         login(request,user)
-        return redirect("/posts/feeds")
+        return redirect("posts:feeds")
       #로그인 처리 후 피트 페이지로 redirect
       
       else:
@@ -42,7 +42,7 @@ def login_view(request):
 def logout_view(request):
   logout(request)
     
-  return redirect("/users/login/")
+  return redirect("users:login")
 
 def signup(request):
   if request.method == "POST":
@@ -74,7 +74,7 @@ def signup(request):
           short_description=short_description,
         )
         login(request, user)
-        return redirect("/posts/feeds/")
+        return redirect("posts:feeds")
     print(request.POST)
     print(request.FILES)
     #context = {"form":form}

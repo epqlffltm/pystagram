@@ -3,10 +3,10 @@
 {% block content %}
 <nav>
   <h1>
-    <a href="/posts/feeds/">Pystagram</a>
+    <a href="{% url 'posts:feeds' %}">Pystagram</a>
   </h1>
-  <a href="/posts/post_add/">Add post</a>
-  <a href="/users/logout/">logout</a>
+  <a href="{% url 'posts:post_add' %}">Add post</a>
+  <a href="{% url 'users:logout' %}">logout</a>
 </nav>
 
 <div id="feels" class="post-container">
@@ -44,6 +44,7 @@
       <span>Comments({{ post.comment_set.count }})</span>
     </div>
 
+    <!--댓글 삭제-->
     <div class="post-comments">
       <ul>
         {% for comment in post.comment_set.all %}
@@ -51,7 +52,7 @@
           <span>{{ comment.user.username }}</span>
           <span>{{ comment.content }}</span>
           {% if user == comment.user %}
-          <form method="POST" action="/posts/comment_delete/{{ comment.id }}/">
+          <form method="POST" action="{% url 'posts:comment_delete' comment_id=comment.id %}">
             {% csrf_token %}
             <button type="submit">삭제</button>
           </form>
@@ -63,8 +64,9 @@
 
     <small>{{ post.created }}</small>
 
+    <!--댓글 생성-->
     <div class="post-comment-create">
-      <form method="POST" action="/posts/comment_add/">
+      <form method="POST" action="{% url 'posts:comment_add' %}">
         {% csrf_token %}
         <input type="hidden" name="post" value="{{ post.id }}">
         {{ comment_form.content }}
