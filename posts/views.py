@@ -112,3 +112,19 @@ def post_detail(request, post_id):
   post = Post.objects.get(id=post_id)
   context = {"post":post}
   return render(request, "posts/post_detail.html", context)
+
+def post_like(request, post_id):
+  post = Post.objects.get(id=post_id)
+  user = request.user
+  #사용자가 좋아요 처리할 Post의 id를 전달받는다.
+  if user.like_posts.filter(id=post.id).exists():
+    #사용자가 좋아요를 누른 post목록에 좋아요 포스트 목록이 존재한다면
+    user.like_posts.remove(post)
+    #좋아요 목록에서 삭제
+    
+  else:
+    user.like_posts.add(post)
+    #존재하지 않는다면 좋아요 목록에 추가한다.
+    
+  url_next = request.GET.get("next") or reverse("posts:feeds") + f"#post-{post.id}"
+  return HttpResponseRedirect(url_next)
