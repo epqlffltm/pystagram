@@ -35,12 +35,15 @@ def comment_add(request):
         comment = form.save(commit=False)
         comment.user = request.user
         comment.save()
-        print(comment.id)
-        print(comment.content)
-        print(comment.user)
+        if request.GET.get("next"):
+          url_next = request.GET.get("next")
+          print(comment.id)
+          print(comment.content)
+          print(comment.user)
         #return HttpResponseRedirect(f"/posts/feeds/#post-{comment.post.id}")
-        url = reverse("posts:feeds") + f"#post-{comment.post.id}"
-        return HttpResponseRedirect(url)
+        else:
+          url_next = reverse("posts:feeds") + f"#post-{comment.post.id}"
+        return HttpResponseRedirect(url_next)
   
 @require_POST
 def comment_delete(request, comment_id):
@@ -96,9 +99,16 @@ def tags(request, tag_name):
   else:
     posts = Post.objects.filter(tags=tag)
     #tags에 찾은 HashTag 객체들을 필터
+    comment_form = CommentForm()
   context = {
     "tag_name":tag_name,
     "posts":posts,
+    "comment_from":comment_form
   }
   #context로 Template에 필터링된 post query set을 념겨주며, 어떤 tag_name로 검색했는지도 념겨준다.
   return render(request,"posts/tags.html", context)
+
+def post_detail(request, post_id):
+  post = Post.objects.get(id=post_id)
+  context = {"post":post}
+  return render(request, "posts/post_detail.html", context)
