@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from posts.models import Post, Comment, PostImage
+from posts.models import Post, Comment, PostImage, HashTag
 from posts.forms import CommentForm, PostForm
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -64,8 +64,15 @@ def post_add(request):
             post.save()
 
             for image_file in request.FILES.getlist("images"):
+              #"image"에 전달된 여러장의 이미지 파일로 각각의 포스트 이미지 생성
                 PostImage.objects.create(post=post, photo=image_file)
-
+                tag_string = request.POST.get("tags")
+                if tag_string:
+                  tag_names = [tag_name.strip() for tag_name in tag_string.split(",")]
+                  for tag_name in tag_names:
+                    tag, _ = HashTag.objects.get_or_create(name=tag_name)
+                    post.tags.add(tag)
+                    #get_of_create로 생성하거나 가저온 HashTag 객체를 post의tags에 추가한다.
             #return HttpResponseRedirect(f"/posts/feeds/#post-{post.id}")
             url = reverse("posts:feeds") + f"#post-{post.id}"
             return HttpResponseRedirect(url)
@@ -79,3 +86,19 @@ def post_add(request):
     }
     return render(request, "posts/post_add.html", context)
 
+def tags(request, tag_name):
+  try:
+    tag = HashTag.objects.get(name=tag_name)
+    print(tag)
+  except HashTag.DoesNotExist:
+    posts = Post.objects.none()
+    #tag_name에 해당하는 HashTag를 찾지 못한다면 빈 query set을 돌려준다
+  else:
+    posts = Post.objects.filter(tags=tag)
+    #tags에 찾은 HashTag 객체들을 필터
+  context = {
+    "tag_name":tag_name,
+    "posts":posts,
+  }
+  #context로 Template에 필터링된 post query set을 념겨주며, 어떤 tag_name로 검색했는지도 념겨준다.
+  return render(request,"posts/tags.html", context)
